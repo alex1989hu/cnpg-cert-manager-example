@@ -1,0 +1,80 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  labels:
+    app.kubernetes.io/name: dts-postgres
+  name: dts-postgres
+  namespace: dts-test
+spec:
+  bootstrap:
+    initdb:
+      database: dts_edison
+      owner: dts_edison
+      postInitApplicationSQLRefs:
+        configMapRefs:
+          - key: pooler_application.sql
+            name: dts-postgres-init-sql
+      postInitSQLRefs:
+        configMapRefs:
+          - key: pooler_postgres.sql
+            name: dts-postgres-init-sql
+  certificates:
+    clientCASecret: dts-postgres-streaming
+    replicationTLSSecret: dts-postgres-streaming
+    serverCASecret: dts-postgres-server
+    serverTLSSecret: dts-postgres-server
+  enableSuperuserAccess: false
+  imageName: ghcr.io/cloudnative-pg/postgresql:17.4-bookworm
+  inheritedMetadata:
+    labels:
+      app.kubernetes.io/name: dts-postgres
+  instances: 3
+  postgresql:
+    parameters:
+      checkpoint_completion_target: "0.9"
+      default_statistics_target: "100"
+      effective_cache_size: 768MB
+      effective_io_concurrency: "300"
+      huge_pages: "off"
+      maintenance_work_mem: 64MB
+      max_connections: "50"
+      max_wal_size: 8GB
+      min_wal_size: 2GB
+      random_page_cost: "1.1"
+      shared_buffers: 256MB
+      synchronous_commit: remote_apply
+      wal_buffers: 7864kB
+      work_mem: 2621kB
+    synchronous:
+      method: any
+      number: 1
+  resources:
+    limits:
+      cpu: 2
+      memory: 2Gi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+  storage:
+    size: 10Gi
+  topologySpreadConstraints:
+    - labelSelector:
+        matchLabels:
+          app.kubernetes.io/name: dts-postgres
+          cnpg.io/podRole: instance
+      matchLabelKeys:
+        - pod-template-hash
+      maxSkew: 1
+      topologyKey: topology.kubernetes.io/region
+      whenUnsatisfiable: ScheduleAnyway
+    - labelSelector:
+        matchLabels:
+          app.kubernetes.io/name: dts-postgres
+          cnpg.io/podRole: instance
+      matchLabelKeys:
+        - pod-template-hash
+      maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: ScheduleAnyway
+  walStorage:
+    size: 10G

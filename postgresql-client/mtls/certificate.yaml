@@ -1,0 +1,26 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  labels:
+    app.kubernetes.io/name: psql-client
+  name: psql-client-cert
+  namespace: dts-test
+spec:
+  commonName: dts_edison
+  duration: 360h0m0s
+  issuerRef:
+    name: k8s-pki
+    kind: ClusterIssuer
+  privateKey:
+    algorithm: ECDSA
+    rotationPolicy: Always
+    size: 384
+  renewBefore: 120h0m0s
+  secretName: psql-client-cert
+  secretTemplate:
+    labels:
+      app.kubernetes.io/name: psql-client
+  usages:
+    - digital signature
+    - client auth
+    - key encipherment

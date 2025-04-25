@@ -1,0 +1,98 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  labels:
+    app.kubernetes.io/name: dts-postgres
+  name: dts-postgres-server
+  namespace: dts-test
+spec:
+  dnsNames:
+    - dts-postgres-pooler-rw
+    - dts-postgres-pooler-rw.dts-test
+    - dts-postgres-pooler-rw.dts-test.svc
+    - dts-postgres-pooler-rw.dts-test.svc.cluster.local
+    - dts-postgres-rw
+    - dts-postgres-rw.dts-test
+    - dts-postgres-rw.dts-test.svc
+    - dts-postgres-r
+    - dts-postgres-r.dts-test
+    - dts-postgres-r.dts-test.svc
+    - dts-postgres-ro
+    - dts-postgres-ro.dts-test
+    - dts-postgres-ro.dts-test.svc
+  duration: 2160h0m0s
+  issuerRef:
+    name: k8s-pki
+    kind: ClusterIssuer
+  privateKey:
+    algorithm: ECDSA
+    rotationPolicy: Always
+    size: 384
+  renewBefore: 720h0m0s
+  secretName: dts-postgres-server
+  secretTemplate:
+    labels:
+      app.kubernetes.io/name: dts-postgres
+      cnpg.io/reload: ""
+  usages:
+    - digital signature
+    - key encipherment
+    - server auth
+
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  labels:
+    app.kubernetes.io/name: dts-postgres
+  name: dts-postgres-pooler
+  namespace: dts-test
+spec:
+  commonName: cnpg_pooler_pgbouncer
+  duration: 2160h0m0s
+  issuerRef:
+    name: k8s-pki
+    kind: ClusterIssuer
+  privateKey:
+    algorithm: ECDSA
+    rotationPolicy: Always
+    size: 384
+  renewBefore: 720h0m0s
+  secretName: dts-postgres-pooler
+  secretTemplate:
+    labels:
+      app.kubernetes.io/name: dts-postgres
+      cnpg.io/reload: ""
+  usages:
+    - digital signature
+    - client auth
+    - key encipherment
+
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  labels:
+    app.kubernetes.io/name: dts-postgres
+  name: dts-postgres-streaming
+  namespace: dts-test
+spec:
+  commonName: streaming_replica
+  duration: 2160h0m0s
+  issuerRef:
+    name: k8s-pki
+    kind: ClusterIssuer
+  privateKey:
+    algorithm: ECDSA
+    rotationPolicy: Always
+    size: 384
+  renewBefore: 720h0m0s
+  secretName: dts-postgres-streaming
+  secretTemplate:
+    labels:
+      app.kubernetes.io/name: dts-postgres
+      cnpg.io/reload: ""
+  usages:
+    - digital signature
+    - client auth
+    - key encipherment
